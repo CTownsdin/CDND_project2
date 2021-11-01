@@ -26,12 +26,19 @@ import { filterImageFromURL, deleteLocalFiles } from "./util/util";
     }
 
     try {
-      const filteredImageFilePath = await filterImageFromURL(image_url);
+      const filteredImgPath = await filterImageFromURL(image_url);
 
-      res.status(200).sendFile(filteredImageFilePath);
-
-      deleteLocalFiles([filteredImageFilePath]);
-      return;
+      res.status(200).sendFile(filteredImgPath, function sendFileCallback(err) {
+        if (err) {
+          console.error(`SendFile error: ${err}`);
+          return res
+            .status(500)
+            .send("Sorry, There is an error sending the file.");
+        }
+        // else, sending was successful, so delete the file
+        deleteLocalFiles([filteredImgPath]);
+        return;
+      });
     } catch (err) {
       return res
         .status(500)
